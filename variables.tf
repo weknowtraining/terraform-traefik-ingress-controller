@@ -1,3 +1,7 @@
+terraform {
+  experiments = [variable_validation]
+}
+
 variable "access_log" {
   default     = false
   description = "Whether to enable access logging"
@@ -14,7 +18,7 @@ variable "image" {
 
   validation {
     condition     = can(regex("^traefik:", var.image))
-    error_message = "You must use a traefik image and include the version"
+    error_message = "You must use a traefik image and include the version."
   }
 }
 
@@ -29,6 +33,6 @@ variable "log_level" {
 
   validation {
     condition     = contains(["DEBUG", "INFO", "WARN", "ERROR", "FATAL", "PANIC"], var.log_level)
-    error_message = "Must be one of DEBUG, INFO, WARN, ERROR, FATAL, PANIC"
+    error_message = "Must be one of DEBUG, INFO, WARN, ERROR, FATAL, PANIC."
   }
 }
