@@ -1,3 +1,7 @@
+locals {
+  k8s_app = "traefik-ingress-lb"
+}
+
 resource "kubernetes_service_account" "traefik-ingress-controller" {
   metadata {
     name      = "traefik-ingress-controller"
@@ -33,12 +37,12 @@ resource "kubernetes_cluster_role_binding" "traefik-ingress-controller" {
   role_ref {
     api_group = "rbac.authorization.k8s.io"
     kind      = "ClusterRole"
-    name      = "traefik-ingress-controller"
+    name      = kubernetes_cluster_role.traefik-ingress-controller.metadata[0].name
   }
 
   subject {
     kind      = "ServiceAccount"
-    name      = "traefik-ingress-controller"
+    name      = kubernetes_service_account.traefik-ingress-controller.metadata[0].name
     namespace = var.namespace
   }
 }
@@ -48,14 +52,14 @@ resource "kubernetes_daemonset" "traefik-ingress-controller" {
     name      = "traefik-ingress-controller"
     namespace = var.namespace
     labels = {
-      "k8s-app" = "traefik-ingress-lb"
+      "k8s-app" = local.k8s_app
     }
   }
 
   spec {
     selector {
       match_labels = {
-        "k8s-app" = "traefik-ingress-lb"
+        "k8s-app" = local.k8s_app
         name      = "traefik-ingress-lb"
       }
     }
@@ -63,13 +67,13 @@ resource "kubernetes_daemonset" "traefik-ingress-controller" {
     template {
       metadata {
         labels = {
-          "k8s-app" = "traefik-ingress-lb"
+          "k8s-app" = local.k8s_app
           name      = "traefik-ingress-lb"
         }
       }
 
       spec {
-        service_account_name             = "traefik-ingress-controller"
+        service_account_name             = kubernetes_service_account.traefik-ingress-controller.metadata[0].name
         automount_service_account_token  = true
         termination_grace_period_seconds = 60
 
@@ -81,6 +85,11 @@ resource "kubernetes_daemonset" "traefik-ingress-controller" {
             name           = "http"
             container_port = var.port
             host_port      = var.port
+          }
+
+          port {
+            name           = "admin"
+            container_port = 8080
           }
 
           security_context {
@@ -128,13 +137,19 @@ resource "kubernetes_service" "traefik-ingress-service" {
 
   spec {
     selector = {
-      "k8s-app" = "traefik-ingress-lb"
+      "k8s-app" = local.k8s_app
     }
 
     port {
       protocol = "TCP"
       port     = var.port
       name     = "http"
+    }
+
+    port {
+      protocol = "TCP"
+      port     = 8080
+      name     = "admin"
     }
   }
 }
