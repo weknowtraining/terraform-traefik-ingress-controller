@@ -121,7 +121,8 @@ resource "kubernetes_daemonset" "traefik-ingress-controller" {
             "--defaultentrypoints=http",
             "--entrypoints=Name:http Address::${var.port} Compress=true",
             "--ping",
-            "--ping.entrypoint=http"
+            "--ping.entrypoint=http",
+            var.insecure_skip_verify ? "--insecureSkipVerify=true" : ""
           ])
         }
       }

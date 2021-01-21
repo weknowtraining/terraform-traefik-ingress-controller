@@ -36,3 +36,8 @@ variable "log_level" {
     error_message = "Must be one of DEBUG, INFO, WARN, ERROR, FATAL, PANIC."
   }
 }
+
+variable "insecure_skip_verify" {
+  default     = false
+  description = "If your endpoints use SSL with self-signed certs, you need to turn this on. Looking at you Ubiquiti!"
+}
