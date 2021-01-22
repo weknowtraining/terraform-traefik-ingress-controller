@@ -1,7 +1,3 @@
-terraform {
-  experiments = [variable_validation]
-}
-
 variable "access_log" {
   default     = false
   description = "Whether to enable access logging"
