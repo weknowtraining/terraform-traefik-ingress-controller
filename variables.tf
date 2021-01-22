@@ -37,3 +37,9 @@ variable "insecure_skip_verify" {
   default     = false
   description = "If your endpoints use SSL with self-signed certs, you need to turn this on. Looking at you Ubiquiti!"
 }
+
+variable "node_selector" {
+  default     = {}
+  type        = map(string)
+  description = "Node selector for the daemonset pods"
+}

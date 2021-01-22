@@ -1,5 +1,5 @@
 locals {
-  k8s_app = "traefik-ingress-lb"
+  app = "traefik-ingress-lb"
 }
 
 resource "kubernetes_service_account" "traefik-ingress-controller" {
@@ -52,23 +52,23 @@ resource "kubernetes_daemonset" "traefik-ingress-controller" {
     name      = "traefik-ingress-controller"
     namespace = var.namespace
     labels = {
-      "k8s-app" = local.k8s_app
+      "app.kubernetes.io/name" = local.app
     }
   }
 
   spec {
     selector {
       match_labels = {
-        "k8s-app" = local.k8s_app
-        name      = "traefik-ingress-lb"
+        "app.kubernetes.io/name" = local.app
+        name                     = "traefik-ingress-lb"
       }
     }
 
     template {
       metadata {
         labels = {
-          "k8s-app" = local.k8s_app
-          name      = "traefik-ingress-lb"
+          "app.kubernetes.io/name" = local.app
+          name                     = "traefik-ingress-lb"
         }
       }
 
@@ -76,6 +76,8 @@ resource "kubernetes_daemonset" "traefik-ingress-controller" {
         service_account_name             = kubernetes_service_account.traefik-ingress-controller.metadata[0].name
         automount_service_account_token  = true
         termination_grace_period_seconds = 60
+
+        node_selector = var.node_selector
 
         container {
           image = var.image
@@ -138,7 +140,7 @@ resource "kubernetes_service" "traefik-ingress-service" {
 
   spec {
     selector = {
-      "k8s-app" = local.k8s_app
+      "app.kubernetes.io/name" = local.app
     }
 
     port {
