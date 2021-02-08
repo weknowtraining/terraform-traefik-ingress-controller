@@ -122,6 +122,7 @@ resource "kubernetes_daemonset" "traefik-ingress-controller" {
             "--logLevel=${var.log_level}",
             "--defaultentrypoints=http",
             "--entrypoints=Name:http Address::${var.port} Compress=true",
+            "--metrics.prometheus",
             "--ping",
             "--ping.entrypoint=http",
             var.insecure_skip_verify ? "--insecureSkipVerify=true" : ""
