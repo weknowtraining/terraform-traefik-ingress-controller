@@ -51,6 +51,7 @@ resource "kubernetes_daemonset" "traefik-ingress-controller" {
   metadata {
     name      = "traefik-ingress-controller"
     namespace = var.namespace
+
     labels = {
       "app.kubernetes.io/name" = local.app
     }
@@ -137,6 +138,10 @@ resource "kubernetes_service" "traefik-ingress-service" {
   metadata {
     name      = "traefik-ingress-service"
     namespace = var.namespace
+
+    labels = {
+      "app.kubernetes.io/name" = local.app
+    }
   }
 
   spec {
