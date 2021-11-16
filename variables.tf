@@ -9,7 +9,7 @@ variable "port" {
 }
 
 variable "image" {
-  default     = "traefik:1.7.28"
+  default     = "traefik:2.5.4"
   description = "The Docker image to run"
 
   validation {

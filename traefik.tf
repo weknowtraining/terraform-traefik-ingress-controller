@@ -23,8 +23,8 @@ resource "kubernetes_cluster_role" "traefik-ingress-controller" {
   }
 
   rule {
-    api_groups = ["extensions"]
-    resources  = ["ingresses"]
+    api_groups = ["networking.k8s.io"]
+    resources  = ["ingresses", "ingressclasses"]
     verbs      = ["get", "list", "watch"]
   }
 }
@@ -118,11 +118,14 @@ resource "kubernetes_daemonset" "traefik-ingress-controller" {
 
           args = compact([
             "--api",
-            "--kubernetes",
-            var.access_log ? "--accessLog" : "",
-            "--logLevel=${var.log_level}",
-            "--defaultentrypoints=http",
-            "--entrypoints=Name:http Address::${var.port} Compress=true",
+            "--api.dashboard",
+            "--api.insecure", # this is fine, because we never expose it to the internet anyway
+            "--providers.kubernetesingress",
+            var.access_log ? "--accesslog=true" : "",
+            "--log.level=${var.log_level}",
+            # "--http.middlewares.compress.compress",
+            "--entryPoints.http.address=:${var.port}",
+            # "--entryPoints.http.http.middlewares=compress",
             "--metrics.prometheus",
             "--ping",
             "--ping.entrypoint=http",
